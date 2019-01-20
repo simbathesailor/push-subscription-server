@@ -44,7 +44,7 @@ mongoose.connect(mongoUrl, {useMongoClient: true}).then(
 });
 app.use(cors());
 // Express configuration
-app.set("port", process.env.PORT || 4001);
+app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
 app.use(compression());
