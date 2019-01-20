@@ -5,7 +5,7 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import logger from "./util/logger";
 import lusca from "lusca";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import mongo from "connect-mongo";
 import flash from "express-flash";
 import path from "path";
@@ -18,7 +18,7 @@ import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
 const MongoStore = mongo(session);
 
 // Load environment variables from .env file, where API keys and passwords are configured
-dotenv.config({ path: ".env" });
+// dotenv.config({ path: ".env" });
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
