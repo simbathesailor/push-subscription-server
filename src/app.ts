@@ -42,9 +42,11 @@ mongoose.connect(mongoUrl, {useMongoClient: true}).then(
   console.log("MongoDB connection error. Please make sure MongoDB is running. " + err);
   // process.exit();
 });
-app.use(cors());
+app.use(cors({
+  origin: true,
+}));
 // Express configuration
-app.set("port", process.env.PORT || 3000);
+app.set("port", process.env.PORT || 4001);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
 app.use(compression());
