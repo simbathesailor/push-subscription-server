@@ -25,7 +25,7 @@
     "debug": "npm run build && npm run watch-debug",
     "serve-debug": "nodemon --inspect dist/server.js",
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"npm run watch-ts\" \"npm run serve-debug\"",
-    "heroku-postbuild": "npm run build && npm run serve"
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "@types/web-push": "^3.3.0",
