@@ -28,6 +28,7 @@
     "heroku-postbuild": "npm run build && npm run serve"
   },
   "dependencies": {
+    "@types/web-push": "^3.3.0",
     "async": "^2.6.0",
     "bcrypt-nodejs": "^0.0.3",
     "bluebird": "^3.5.1",
