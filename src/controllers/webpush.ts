@@ -13,7 +13,7 @@ const request = require("express-validator");
 
 const {
   PUSH_SUBSCRIPTION_PRIVATE_KEY,
-  PUSH_SUBSCRIPTION_PUBLIC_KEY,
+  PUSH_SUBSCRIPTION_PUBLIC_KEY
 } = process.env;
 /**
  * GET /login
@@ -56,63 +56,79 @@ const {
  * Web Push code start
  */
 
- export const subscribeWebPush = async (req: Request, res: Response, next: NextFunction) => {
+export const subscribeWebPush = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   console.log("request", req.body);
   if (!req.body.email || !req.body.subscription) {
-    return res.send({ status: "400", message: " Bad Request"});
+    return res.send({ status: "400", message: " Bad Request" });
   }
-  const {
+  const { email, subscription } = req.body;
+  const subscriptionModel = await PushSubscriptionModel.create({
     email,
-    subscription,
-  } = req.body;
-  const subscriptionModel = await PushSubscriptionModel.create({ email, subscription })
-  .then(() => {
-    return res.send({status: 200, message: "ok"});
+    subscription
   })
-  .catch(() => {
-    return res.send({status: ""});
-  });
+    .then(() => {
+      return res.send({ status: 200, message: "ok" });
+    })
+    .catch(() => {
+      return res.send({ status: "" });
+    });
   return subscriptionModel;
-  };
+};
 
-const sendPushNotification = ({ email, subscription }: {email: string, subscription: object}) => {
+const sendPushNotification = ({
+  email,
+  subscription
+}: {
+  email: string;
+  subscription: any;
+}) => {
   console.log("push notification going to be sent ", email, subscription);
   const pushSubscription = subscription;
   // TODO 4.3a - include VAPID keys
   const vapidPublicKey = PUSH_SUBSCRIPTION_PUBLIC_KEY;
-  const vapidPrivateKey = PUSH_SUBSCRIPTION_PRIVATE_KEY; //vapid change 5
+  const vapidPrivateKey = PUSH_SUBSCRIPTION_PRIVATE_KEY; // vapid change 5
   const payload = "your message Hi!";
   const options = {
-    //gcmAPIKey: 'AAAAM0IOs0Q:APA91bFVqnqSwtLWlsnrw_hyfPSL7ConhdD03Bkfjo7RJTMAYbclj2OcR2uSSTbRs3IAC-zHfeceqWfYYIJ6pGYhQztGtyYwlHAlUwf5YAzvHJRK_izawJuB5ewm4TRm5W4sC6WLarqU',  //gcmAPIKey: 'YOUR_SERVER_KEY', //vapid change 6
+    // gcmAPIKey: 'AAAAM0IOs0Q:APA91bFVqnqSwtLWlsnrw_hyfPSL7ConhdD03Bkfjo7RJTMAYbclj2OcR2uSSTbRs3IAC-zHfeceqWfYYIJ6pGYhQztGtyYwlHAlUwf5YAzvHJRK_izawJuB5ewm4TRm5W4sC6WLarqU',  //gcmAPIKey: 'YOUR_SERVER_KEY', //vapid change 6
     TTL: 60,
     vapidDetails: {
-      //vapid change 7 added vapid details
+      // vapid change 7 added vapid details
       subject: `mailto: ${email}`,
       publicKey: vapidPublicKey,
       privateKey: vapidPrivateKey
     }
     // TODO 4.3b - add VAPID details
   };
-  webPush.sendNotification(pushSubscription, payload, options).then((push) => {
-    console.log("push was sent successfully");
-  })
-  .catch((e) => {
-    console.log("not able to send the push", e);
-  });
+  webPush
+    .sendNotification(pushSubscription, payload, options)
+    .then(push => {
+      console.log("push was sent successfully");
+    })
+    .catch(e => {
+      console.log("not able to send the push", e);
+    });
 };
 
-export const pushNotificationController = async (req: Request, res: Response, next: NextFunction) => {
-  const results =  await PushSubscriptionModel.find({});
+type PushSubscriptElement = { email: string, subscription: any};
+export const pushNotificationController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const results: any = await PushSubscriptionModel.find({});
   if (results) {
-    results.forEach((element) => {
-      console.log("element in sendPushNotification controller", element);
+    results.forEach(({ email, subscription }: { email: string, subscription: any}): void => {
       sendPushNotification({
-        email: element.email,
-        subscription: element.subscription,
+        email: email,
+        subscription: subscription,
       });
     });
   }
-  res.send({status: "OK", message: "Notification Triggered"});
+  res.send({ status: "OK", message: "Notification Triggered" });
 };
 /**
  *
@@ -135,18 +151,25 @@ export let postLogin = (req: Request, res: Response, next: NextFunction) => {
     return res.redirect("/login");
   }
 
-  passport.authenticate("local", (err: Error, user: UserModel, info: IVerifyOptions) => {
-    if (err) { return next(err); }
-    if (!user) {
-      req.flash("errors", info.message);
-      return res.redirect("/login");
+  passport.authenticate(
+    "local",
+    (err: Error, user: UserModel, info: IVerifyOptions) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        req.flash("errors", info.message);
+        return res.redirect("/login");
+      }
+      req.logIn(user, err => {
+        if (err) {
+          return next(err);
+        }
+        req.flash("success", { msg: "Success! You are logged in." });
+        res.redirect(req.session.returnTo || "/");
+      });
     }
-    req.logIn(user, (err) => {
-      if (err) { return next(err); }
-      req.flash("success", { msg: "Success! You are logged in." });
-      res.redirect(req.session.returnTo || "/");
-    });
-  })(req, res, next);
+  )(req, res, next);
 };
 
 // /**
