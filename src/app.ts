@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import compression from "compression";  // compresses requests
 import session from "express-session";
 import bodyParser from "body-parser";
@@ -17,13 +18,14 @@ import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
 const MongoStore = mongo(session);
 
 // Load environment variables from .env file, where API keys and passwords are configured
-dotenv.config({ path: ".env.example" });
+dotenv.config({ path: ".env" });
 
 // Controllers (route handlers)
 import * as homeController from "./controllers/home";
 import * as userController from "./controllers/user";
 import * as apiController from "./controllers/api";
 import * as contactController from "./controllers/contact";
+import * as pushController from "./controllers/webpush";
 
 
 // API keys and Passport configuration
@@ -41,9 +43,9 @@ mongoose.connect(mongoUrl, {useMongoClient: true}).then(
   console.log("MongoDB connection error. Please make sure MongoDB is running. " + err);
   // process.exit();
 });
-
+app.use(cors());
 // Express configuration
-app.set("port", process.env.PORT || 3000);
+app.set("port", process.env.PORT || 4001);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
 app.use(compression());
@@ -107,7 +109,15 @@ app.post("/account/profile", passportConfig.isAuthenticated, userController.post
 app.post("/account/password", passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post("/account/delete", passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get("/account/unlink/:provider", passportConfig.isAuthenticated, userController.getOauthUnlink);
+/**
+ * Push -subscription API
+ */
+app.post("/subscribe-web-push", pushController.subscribeWebPush);
+/**
+ * Push Trigger API
+ */
 
+ app.get("/push-notifications", pushController.pushNotificationController);
 /**
  * API examples routes.
  */
