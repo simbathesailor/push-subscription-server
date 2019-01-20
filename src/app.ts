@@ -33,7 +33,6 @@ import * as passportConfig from "./config/passport";
 
 // Create Express server
 const app = express();
-
 // Connect to MongoDB
 const mongoUrl = MONGODB_URI;
 (<any>mongoose).Promise = bluebird;

@@ -11,7 +11,10 @@ import "../config/passport";
 import webPush from "web-push";
 const request = require("express-validator");
 
-
+const {
+  PUSH_SUBSCRIPTION_PRIVATE_KEY,
+  PUSH_SUBSCRIPTION_PUBLIC_KEY,
+} = process.env;
 /**
  * GET /login
  * Login page.
@@ -76,9 +79,8 @@ const sendPushNotification = ({ email, subscription }: {email: string, subscript
   console.log("push notification going to be sent ", email, subscription);
   const pushSubscription = subscription;
   // TODO 4.3a - include VAPID keys
-  const vapidPublicKey =
-    "BHsnkyoFLhhLWotMb9r9q8MS864VLz-90JEYgJY8ywEKj1L4B9Wjv4iN2Gg7nOGbl3UgwrHa2TAzFh83EpVnebQ"; //vapid change 4
-  const vapidPrivateKey = "4Ya9U2eeKag1Y1iAfB1FHifqETvT_tyGJvAcT29MygI"; //vapid change 5
+  const vapidPublicKey = PUSH_SUBSCRIPTION_PUBLIC_KEY;
+  const vapidPrivateKey = PUSH_SUBSCRIPTION_PRIVATE_KEY; //vapid change 5
   const payload = "your message Hi!";
   const options = {
     //gcmAPIKey: 'AAAAM0IOs0Q:APA91bFVqnqSwtLWlsnrw_hyfPSL7ConhdD03Bkfjo7RJTMAYbclj2OcR2uSSTbRs3IAC-zHfeceqWfYYIJ6pGYhQztGtyYwlHAlUwf5YAzvHJRK_izawJuB5ewm4TRm5W4sC6WLarqU',  //gcmAPIKey: 'YOUR_SERVER_KEY', //vapid change 6
@@ -94,7 +96,7 @@ const sendPushNotification = ({ email, subscription }: {email: string, subscript
   webPush.sendNotification(pushSubscription, payload, options).then((push) => {
     console.log("push was sent successfully");
   })
-  .catch(e => {
+  .catch((e) => {
     console.log("not able to send the push", e);
   });
 };
