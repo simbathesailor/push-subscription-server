@@ -91,7 +91,7 @@ const sendPushNotification = ({
   // TODO 4.3a - include VAPID keys
   const vapidPublicKey = PUSH_SUBSCRIPTION_PUBLIC_KEY;
   const vapidPrivateKey = PUSH_SUBSCRIPTION_PRIVATE_KEY; // vapid change 5
-  const payload = "your message Hi!";
+  const payload = "Say hi to me from server!";
   const options = {
     // gcmAPIKey: 'AAAAM0IOs0Q:APA91bFVqnqSwtLWlsnrw_hyfPSL7ConhdD03Bkfjo7RJTMAYbclj2OcR2uSSTbRs3IAC-zHfeceqWfYYIJ6pGYhQztGtyYwlHAlUwf5YAzvHJRK_izawJuB5ewm4TRm5W4sC6WLarqU',  //gcmAPIKey: 'YOUR_SERVER_KEY', //vapid change 6
     TTL: 60,
@@ -120,7 +120,7 @@ export const pushNotificationController = async (
   next: NextFunction
 ) => {
   const results: any = await PushSubscriptionModel.find({});
-  if (results) {
+  if (results && results.length > 0) {
     results.forEach(({ email, subscription }: { email: string, subscription: any}): void => {
       sendPushNotification({
         email: email,
